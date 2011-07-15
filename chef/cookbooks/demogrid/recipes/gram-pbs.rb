@@ -32,11 +32,7 @@ package "libssl0.9.8"
 package "libssl-dev"
 
 # We'll need the pre-compiled source tarball.
-if node[:kernel][:machine] == "i686" then
-  install_tarball = "gt5.0.3-source-install_i686.tgz"
-elsif node[:kernel][:machine] == "x86_64" then
-  install_tarball = "gt5.0.3-source-install_x86_64.tgz"
-end
+install_tarball = "gt5.0.3-source-install.tgz"
 
 
 # Compile and install gram5-pbs
@@ -44,8 +40,8 @@ end
 # TODO: Figure out how to determine if gram5-pbs is already installed,
 # so we can skip this step.
 
-if ! File.exists?("#{node[:scratch_dir]}/#{node[:globus][:srcdir]}")
-  cookbook_file "#{node[:scratch_dir]}/#{install_tarball}" do
+if ! File.exists?(node[:globus][:srcdir])
+  cookbook_file "/var/tmp/#{install_tarball}" do
     source "#{install_tarball}"
     mode 0755
     owner "globus"
@@ -55,8 +51,8 @@ if ! File.exists?("#{node[:scratch_dir]}/#{node[:globus][:srcdir]}")
   execute "tar" do
     user "globus"
     group "globus"
-    cwd node[:scratch_dir]
-    command "tar xzf #{node[:scratch_dir]}/#{install_tarball}"
+    cwd "/var/tmp"
+    command "tar xzf /var/tmp/#{install_tarball}"
     action :run
   end
 end
@@ -65,7 +61,7 @@ if ! File.exists?("#{node[:globus][:dir]}/etc/grid-services/jobmanager-pbs")
   execute "make gram5-pbs" do
     user "globus"
     group "globus"
-    cwd "#{node[:scratch_dir]}/#{node[:globus][:srcdir]}"
+    cwd node[:globus][:srcdir]
     command "make gram5-pbs"
     action :run
   end
@@ -73,7 +69,7 @@ if ! File.exists?("#{node[:globus][:dir]}/etc/grid-services/jobmanager-pbs")
   execute "make install" do
     user "globus"
     group "globus"
-    cwd "#{node[:scratch_dir]}/#{node[:globus][:srcdir]}"
+    cwd node[:globus][:srcdir]
     command "make install"
     action :run
     environment(

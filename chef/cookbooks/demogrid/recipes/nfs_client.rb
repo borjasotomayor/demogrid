@@ -42,27 +42,27 @@ package "autofs" do
 end
 
 
-# Set up the home directories so they will be automounted.
-
-if ! File.exists?("/nfs")
-	# Create the directory where the NFS directories will be mounted
-	directory "/nfs" do
-	  owner "root"
-	  group "root"
-	  mode "0755"
-	  action :create
-	  recursive true
-	end
-	
-	# Create the directory where home directories will be mounted
-	directory "/nfs/home" do
-	  owner "root"
-	  group "root"
-	  mode "0755"
-	  action :create
-	  recursive true
-	end
+# Create the directory where the NFS directories will be mounted
+directory "/nfs" do
+  owner "root"
+  group "root"
+  mode "0755"
+  action :create
+  recursive true
 end
+
+
+# Create the directory where home directories will be mounted
+directory "/nfs/home" do
+  owner "root"
+  group "root"
+  mode "0755"
+  action :create
+  recursive true
+end
+
+
+# Set up the home directories so they will be automounted.
 
 ruby_block "addlines" do
   block do
@@ -90,24 +90,6 @@ template "/etc/auto.nfs" do
   )
 end
 
-execute "portmap_restart" do
- user "root"
- group "root"
- command "/etc/init.d/portmap restart"
- action :run
-end
-
-case node.platform
-  when "debian"
-  execute "nfs_common_restart" do
-    user "root"
-    group "root"
-    command "/etc/init.d/nfs-common restart"
-    action :run
-  end
-end
-
-
 # Restart autofs
 
 execute "autofs_restart" do
@@ -115,13 +97,4 @@ execute "autofs_restart" do
  group "root"
  command "/etc/init.d/autofs restart"
  action :run
-end
-
-
-
-
-ruby_block "addlines" do
-  block do
-    add_line("/etc/profile", "export PATH=/nfs/software/bin:$PATH")
-  end
 end

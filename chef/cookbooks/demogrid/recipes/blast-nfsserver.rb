@@ -23,7 +23,7 @@ if ! File.exists?(node[:blast][:dir])
     action :create
   end
   
-  cookbook_file "#{node[:scratch_dir]}/blast.tar.gz" do
+  cookbook_file "/var/tmp/blast.tar.gz" do
     source "ncbi-blast-2.2.25+-ia32-linux.tar.gz"
     owner "root"
     group "root"
@@ -33,13 +33,9 @@ if ! File.exists?(node[:blast][:dir])
   execute "tar" do
     user "root"
     group "root"
-    command "tar xzf #{node[:scratch_dir]}/blast.tar.gz --strip-components=1 --directory #{node[:blast][:dir]}"
+    command "tar xzf /var/tmp/blast.tar.gz --strip-components=1 --directory #{node[:blast][:dir]}"
     action :run
   end  	
-  
-  link "/nfs/software/bin/blastp" do
-    to "#{node[:blast][:dir]}/bin/blastp"
-  end
 
 end
   

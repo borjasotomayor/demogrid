@@ -45,14 +45,14 @@ if ! File.exists?(node[:galaxy][:dir])
     action :create
   end
   
-  remote_file "#{node[:scratch_dir]}/galaxy-dist.tip.tar.bz2" do
+  remote_file "/var/tmp/galaxy-dist.tip.tar.bz2" do
     source "https://bitbucket.org/steder/galaxy-globus/get/tip.tar.bz2"
     owner "root"
     group "root"    
     mode "0644"
   end
   
-  #cookbook_file "#{node[:scratch_dir]}/galaxy-dist.tip.tar.bz2" do
+  #cookbook_file "/var/tmp/galaxy-dist.tip.tar.bz2" do
   #  source "galaxy-globus.tip.tar.bz2"
   #  owner "root"
   #  group "root"
@@ -62,7 +62,7 @@ if ! File.exists?(node[:galaxy][:dir])
   execute "tar" do
     user "galaxy"
     group "galaxy"
-    command "tar xjf #{node[:scratch_dir]}/galaxy-dist.tip.tar.bz2 --strip-components=1 --directory #{node[:galaxy][:dir]}"
+    command "tar xjf /var/tmp/galaxy-dist.tip.tar.bz2 --strip-components=1 --directory #{node[:galaxy][:dir]}"
     action :run
   end  	
 
@@ -95,15 +95,12 @@ if ! File.exists?(node[:galaxy][:dir])
     mode "0755"
   end
   
-template "#{node[:galaxy][:dir]}/universe_wsgi.ini" do
-  source "galaxy-universe.erb"
-  mode 0644
-  owner "galaxy"
-  group "galaxy"
-  variables(
-    :db_connect => "foo"
-  )
-end  
+  cookbook_file "#{node[:galaxy][:dir]}/universe_wsgi.ini" do
+    source "universe_wsgi-globus.ini"
+    owner "galaxy"
+    group "galaxy"
+    mode "0644"
+  end
 
 end
   

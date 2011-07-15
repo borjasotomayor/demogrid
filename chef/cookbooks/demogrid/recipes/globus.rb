@@ -70,8 +70,8 @@ end
 #    complete the installation
 if ! File.exists?(node[:globus][:dir])
 
-  if ! File.exists?("#{node[:scratch_dir]}/#{node[:globus][:srcdir]}")
-  	cookbook_file "#{node[:scratch_dir]}/#{install_tarball}" do
+  if ! File.exists?(node[:globus][:srcdir])
+  	cookbook_file "/var/tmp/#{install_tarball}" do
   	  source "#{install_tarball}"
   	  mode 0755
   	  owner "globus"
@@ -81,13 +81,13 @@ if ! File.exists?(node[:globus][:dir])
     execute "tar" do
       user "globus"
       group "globus"
-      cwd node[:scratch_dir]
-      command "tar xzf #{node[:scratch_dir]}/#{install_tarball}"
+      cwd "/var/tmp"
+      command "tar xzf /var/tmp/#{install_tarball}"
       action :run
     end  	
     
     # Cleanup
-    file "#{node[:scratch_dir]}/#{install_tarball}" do
+    file "/var/tmp/#{install_tarball}" do
       action :delete
     end       
   end
@@ -99,7 +99,7 @@ if ! File.exists?(node[:globus][:dir])
     action :create
   end
   
-  cookbook_file "#{node[:scratch_dir]}/#{gl_tarball}" do
+  cookbook_file "/var/tmp/#{gl_tarball}" do
     source "#{gl_tarball}"
     mode 0755
     owner "globus"
@@ -109,18 +109,18 @@ if ! File.exists?(node[:globus][:dir])
   execute "tar" do
 	  user "globus"
 	  group "globus"
-	  command "tar xzf #{node[:scratch_dir]}/#{gl_tarball} --directory #{node[:globus][:dir]}"
+	  command "tar xzf /var/tmp/#{gl_tarball} --directory #{node[:globus][:dir]}"
 	  action :run
 	end
 
-  file "#{node[:scratch_dir]}/#{gl_tarball}" do
+  file "/var/tmp/#{gl_tarball}" do
     action :delete
   end       
 	
 	execute "make install" do
 	  user "globus"
 	  group "globus"
-	  cwd "#{node[:scratch_dir]}/#{node[:globus][:srcdir]}"
+	  cwd node[:globus][:srcdir]
 	  command "make install 2>&1 | tee build.log"
 	  action :run
 	  environment(
